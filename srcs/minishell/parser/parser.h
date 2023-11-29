@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/18 02:00:47 by dlacuey           #+#    #+#             */
-/*   Updated: 2023/11/24 04:25:30 by marvin           ###   ########.fr       */
+/*   Updated: 2023/11/29 01:29:00 by jdenis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,8 @@ void	clear_tree(t_node *node);
 void	create_parser_map(t_parser_map parser_map[NUMBER_OF_TOKEN_TYPES]);
 bool	add_pipe(t_parser_env *env);
 t_token_list	*pipeless_token_list(t_token_list *token_list, size_t *index);
-void print_parser_env(t_parser_env *env);
+void	print_parser_env(t_parser_env *env);
+void 	print_node(t_node *node, int max_depth);
 bool	init_simple_command(t_node **simple_command, t_node *head);
 
 #endif

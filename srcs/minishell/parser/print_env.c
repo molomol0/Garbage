@@ -30,7 +30,8 @@ void print_node_recursive(t_node *node, int depth, t_node **visited, size_t *vis
     print_node_recursive(node->right, depth + 1, visited, visited_count, max_depth);
 }
 
-void print_node(t_node *node, int max_depth) {
+void print_node(t_node *node, int max_depth) 
+{
     size_t visited_count = 0;
     t_node *visited[100];
 
