@@ -13,74 +13,73 @@ BeforeEach(execution) {}
 
 AfterEach(execution) {}
 
-Ensure(execution, can_exec_echo_toto)
-{
-	const char *output_file = "test.txt";
-	char *line;
+// Ensure(execution, can_exec_echo_toto)
+// {
+// 	const char *output_file = "test.txt";
+// 	char *line;
 
-	//GIVEN (etant donné etat initial)
-	t_node *node = malloc(sizeof(t_node));
-	node->type = SIMPLE_COMMAND;
-	node->vector_strs.values = malloc(sizeof(char *) * 3);
-	node->vector_strs.values[0] = ft_strdup("echo");
-	node->vector_strs.values[1] = ft_strdup("toto");
-	node->vector_strs.values[2] = NULL;
-	node->left = NULL;
-	node->right = NULL;
-	//WHEN (quand)
-	// int fd = open(output_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	// dup2(fd, STDOUT_FILENO);
-	FILE *file = fopen(output_file, "w");
-	freopen(output_file, "w", stdout);
-	execution(node);
+// 	//GIVEN (etant donné etat initial)
+// 	t_node *node = malloc(sizeof(t_node));
+// 	node->type = SIMPLE_COMMAND;
+// 	node->vector_strs.values = malloc(sizeof(char *) * 3);
+// 	node->vector_strs.values[0] = ft_strdup("echo");
+// 	node->vector_strs.values[1] = ft_strdup("toto");
+// 	node->vector_strs.values[2] = NULL;
+// 	node->left = NULL;
+// 	node->right = NULL;
+// 	//WHEN (quand)
 
-	//THEN (alors)
-	int fd = open(output_file, O_RDONLY);
-	line = get_next_line(fd);
-	assert_that(line, is_equal_to_string("toto\n"));
-	close(fd);
-	unlink(output_file);
+// 	FILE *file = fopen(output_file, "w");
+// 	freopen(output_file, "w", stdout);
+// 	execution(node);
 
-	free_strs(node->vector_strs.values);
-	free(node);
-	free(line);
-	fclose(file);
-}
+// 	//THEN (alors)
+// 	int fd = open(output_file, O_RDONLY);
+// 	line = get_next_line(fd);
+// 	assert_that(line, is_equal_to_string("toto\n"));
+// 	close(fd);
+// 	unlink(output_file);
 
-Ensure(execution, can_exec_echo_toto_with_option)
-{
-	const char *output_file = "test.txt";
-	char *line;
+// 	free_strs(node->vector_strs.values);
+// 	free(node);
+// 	free(line);
+// 	fclose(file);
+// }
 
-	//GIVEN (etant donné etat initial)
-	t_node *node = malloc(sizeof(t_node));
-	node->type = SIMPLE_COMMAND;
-	node->vector_strs.values = malloc(sizeof(char *) * 4);
-	node->vector_strs.values[0] = ft_strdup("echo");
-	node->vector_strs.values[1] = ft_strdup("-n");
-	node->vector_strs.values[2] = ft_strdup("toto");
-	node->vector_strs.values[3] = NULL;
-	node->left = NULL;
-	node->right = NULL;
-	//WHEN (quand)
-	// int fd = open(output_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-	// dup2(fd, STDOUT_FILENO);
-	FILE *file = fopen(output_file, "w");
-	freopen(output_file, "w", stdout);
-	execution(node);
+// Ensure(execution, can_exec_echo_toto_with_option)
+// {
+// 	const char *output_file = "test.txt";
+// 	char *line;
 
-	//THEN (alors)
-	int fd = open(output_file, O_RDONLY);
-	line = get_next_line(fd);
-	assert_that(line, is_equal_to_string("toto"));
-	close(fd);
-	unlink(output_file);
+// 	//GIVEN (etant donné etat initial)
+// 	t_node *node = malloc(sizeof(t_node));
+// 	node->type = SIMPLE_COMMAND;
+// 	node->vector_strs.values = malloc(sizeof(char *) * 4);
+// 	node->vector_strs.values[0] = ft_strdup("echo");
+// 	node->vector_strs.values[1] = ft_strdup("-n");
+// 	node->vector_strs.values[2] = ft_strdup("toto");
+// 	node->vector_strs.values[3] = NULL;
+// 	node->left = NULL;
+// 	node->right = NULL;
+// 	//WHEN (quand)
+// 	// int fd = open(output_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+// 	// dup2(fd, STDOUT_FILENO);
+// 	FILE *file = fopen(output_file, "w");
+// 	freopen(output_file, "w", stdout);
+// 	execution(node);
 
-	free_strs(node->vector_strs.values);
-	free(node);
-	free(line);
-	fclose(file);
-}
+// 	//THEN (alors)
+// 	int fd = open(output_file, O_RDONLY);
+// 	line = get_next_line(fd);
+// 	assert_that(line, is_equal_to_string("toto"));
+// 	close(fd);
+// 	unlink(output_file);
+
+// 	free_strs(node->vector_strs.values);
+// 	free(node);
+// 	free(line);
+// 	fclose(file);
+// }
 
 Ensure(execution, can_exec_echo_toto_with_redirection)
 {

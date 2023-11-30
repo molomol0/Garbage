@@ -6,7 +6,7 @@
 /*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/09 21:53:01 by dlacuey           #+#    #+#             */
-/*   Updated: 2023/11/29 01:34:03 by jdenis           ###   ########.fr       */
+/*   Updated: 2023/11/30 04:43:33 by jdenis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,96 +84,78 @@ void	exec_full_command(t_node *node, int fds[NUMBER_OF_FDS], t_exec_map exec_map
 		else
 			exec_full_command(node->left, fds, exec_map);
 	}
-	reset_standard_streams(fds);
+    if (fds)
+    {
+        reset_standard_streams(fds);
+    }
 	unlink("here_doc.minishell");
 }
 
-void printTree(t_node *node, int depth) {
-    if (node != NULL) {
-        // Afficher l'indentation en fonction de la profondeur du nœud
-        for (int i = 0; i < depth; i++) {
-            printf("  ");
-        }
+void    reset_std(int saved_stdin, int saved_stdout)
+{
+    dup2(saved_stdin, STDIN_FILENO);
+    dup2(saved_stdout, STDOUT_FILENO);
+    close(saved_stdin);
+    close(saved_stdout);
+}
 
-        // Afficher le type du nœud
-        switch (node->type) {
-            case SIMPLE_COMMAND:
-                printf("Simple Command\n");
-                break;
-            case COMMAND_O_REDIRECT:
-                printf("Command Output Redirect\n");
-                break;
-            case COMMAND_I_REDIRECT:
-                printf("Command Input Redirect\n");
-                break;
-            case APPEND_REDIRECT:
-                printf("Append Redirect\n");
-                break;
-            case HERE_DOCUMENT:
-                printf("Here Document\n");
-                break;
-            case COMMAND_PIPE:
-                printf("Command Pipe\n");
-                break;
-            default:
-                printf("Unknown Type\n");
-                break;
-        }
-
-        // Afficher les valeurs du vecteur de chaînes de caractères
-        for (size_t i = 0; i < node->vector_strs.size; i++) {
-            for (int j = 0; j <= depth; j++) {
-                printf("  ");
-            }
-            printf("- %s\n", node->vector_strs.values[i]);
-        }
-
-        // Appeler la fonction récursivement pour le sous-arbre gauche et droit
-        printTree(node->left, depth + 1);
-        printTree(node->right, depth + 1);
+void    wait_all_pid(pid_t pid_tab[], int index)
+{
+    while (index >= 0) 
+    {
+        waitpid(pid_tab[index], &exit_status, WUNTRACED);
+        index--;
     }
 }
 
-// Fonction d'affichage de l'arbre binaire à partir d'un nœud
-void displayTree(t_node *node) {
-    if (node != NULL) {
-        printTree(node, 0);
-    } else {
-        printf("L'arbre est vide.\n");
+void    connect_pipe(int fd[2])
+{
+    close(fd[0]);
+    dup2(fd[1], STDOUT_FILENO);
+    close(fd[1]);
+}
+
+void    dup_tmp_fd(int tmp_fd)
+{
+    if (tmp_fd != STDIN_FILENO) 
+    {
+        dup2(tmp_fd, STDIN_FILENO);
+        close(tmp_fd);
     }
 }
 
+void    error_message(char *message)
+{
+    perror(message);
+    exit(EXIT_FAILURE);
+}
 
 void exec_pipes(t_node *node, t_exec_map exec_map[NUMBER_OF_EXEC_FUNCS]) 
 {
-    int fd[2];
-    int tmp_fd = dup(STDIN_FILENO);
-	//displayTree(node);
+    int     fd[2];
+    int     tmp_fd;
+    int     saved_stdin;
+    int     saved_stdout;
+    pid_t   pid_tab[node->number_of_pipes + 1];
+    int     index;
 
+    tmp_fd = dup(STDIN_FILENO);
+    saved_stdin = dup(STDIN_FILENO);
+    saved_stdout = dup(STDOUT_FILENO);
+    index = 0;
     while (node->right) 
     {
         if (pipe(fd) == -1) 
+            error_message("pipe");
+        pid_tab[index] = fork();
+        if (pid_tab[index] == -1) 
+            error_message("fork");
+        if (pid_tab[index] == 0) 
         {
-            perror("pipe");
-            exit(EXIT_FAILURE);
-        }
-        pid_t pid = fork();
-        if (pid == -1) 
-        {
-            perror("fork");
-            exit(EXIT_FAILURE);
-        }
-        if (pid == 0) 
-        {
-            close(fd[0]);
-            dup2(fd[1], STDOUT_FILENO);
-            close(fd[1]);
-            if (tmp_fd != STDIN_FILENO) 
-            {
-                dup2(tmp_fd, STDIN_FILENO);
-                close(tmp_fd);
-            }
+            connect_pipe(fd);
+            dup_tmp_fd(tmp_fd);
             exec_full_command(node->left, NULL, exec_map);
+            clear_tree(node->head);
             exit(EXIT_SUCCESS);
         } 
         else 
@@ -185,25 +167,14 @@ void exec_pipes(t_node *node, t_exec_map exec_map[NUMBER_OF_EXEC_FUNCS])
 			if (node->right)
             	node = node->right;
 			else
-			{
-				close(fd[0]);
-				dup2(fd[1], STDOUT_FILENO);
-				close(fd[1]);
-			}
+                connect_pipe(fd);
         }
+        index++;
     }
-    if (tmp_fd != STDIN_FILENO) 
-    {
-        dup2(tmp_fd, STDIN_FILENO);
-        close(tmp_fd);
-    }
-	// dup2(fd[1], STDOUT_FILENO);
-	// close(fd[1]);
-	//printf("avant exec full command last\n");
-	//displayTree(node);
+    dup_tmp_fd(tmp_fd);
     exec_full_command(node, NULL, exec_map);
-	//printf("apres exec full command last\n");
-    while (wait(NULL) != -1) {}
+    wait_all_pid(pid_tab, index - 1);
+    reset_std(saved_stdin, saved_stdout);
 }
 
 void	execution(t_node *tree)

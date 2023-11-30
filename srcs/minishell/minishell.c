@@ -6,7 +6,7 @@
 /*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/09 21:58:22 by dlacuey           #+#    #+#             */
-/*   Updated: 2023/11/28 00:47:54 by jdenis           ###   ########.fr       */
+/*   Updated: 2023/11/30 04:36:09 by jdenis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,17 +50,19 @@ static void	interactive_mode(void)
 			continue ;
 		}
 		tree = parser(token_list);
+		destroy_token_list(token_list);
 		if (!tree)
 		{
-			(free(input), destroy_token_list(token_list));
+			free(input);
 			continue ;
 		}
 		execution(tree);
+		clear_tree(tree);
 		if (input[0] != '!')
 			update_history(input);
 		else if (exit_status == -1)
-			(clear_tree(tree), destroy_token_list(token_list), exit(1));
-		(free(input), destroy_token_list(token_list), clear_tree(tree));
+			exit(1);
+		free(input);
 	}
 }
 
