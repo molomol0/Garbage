@@ -6,55 +6,71 @@
 /*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 05:49:25 by jdenis            #+#    #+#             */
-/*   Updated: 2023/10/27 05:44:26 by dlacuey          ###   ########.fr       */
+/*   Updated: 2024/01/16 11:00:31 by dlacuey          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "colors.h"
 #include "get_next_line.h"
 #include "libft.h"
+#include <fcntl.h>
 #include <readline/history.h>
-#include "colors.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-
-void add_input_to_history(char *input)
+void	add_input_to_history(char *input)
 {
-	int fd = open(".minishell_history", O_WRONLY | O_CREAT | O_APPEND, 0644);
-	if (fd < 0) 
+	char	*path;
+	int		fd;
+
+	path = getenv("HOME");
+	if (!path)
 	{
-		perror(RED"Cannot open History file");
+		perror(RED "Cannot find home path" WHITE);
+		return ;
+	}
+	path = ft_strjoin(path, "/.minishell_history");
+	fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+	if (fd < 0)
+	{
+		perror(RED "Cannot open History file");
+		free(path);
 		return ;
 	}
 	write(fd, input, ft_strlen(input));
 	write(fd, "\n", 1);
 	close(fd);
+	free(path);
 }
 
 void	redo_history(void)
 {
 	int		fd;
 	char	*line;
+	char	*path;
 
-	fd = open(".minishell_history", O_RDONLY | O_CREAT, 0644);
+	path = getenv("HOME");
+	if (!path)
+	{
+		perror(RED "Cannot find home path" WHITE);
+		return ;
+	}
+	path = ft_strjoin(path, "/.minishell_history");
+	fd = open(path, O_RDONLY | O_CREAT, 0644);
 	if (fd < 0)
 	{
-		perror(RED"Cannot open History file");
+		perror(RED "Cannot open History file");
+		free(path);
 		return ;
 	}
 	line = get_next_line(fd);
 	while (line)
 	{
-		delete_newline(&line);
-		add_history(line);
-		free(line);
+		(delete_newline(&line), add_history(line), free(line));
 		line = get_next_line(fd);
 	}
-	free(line);
-	close(fd);
-
+	(free(line), close(fd), free(path));
 }
 
 void	update_history(char *input)

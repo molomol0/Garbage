@@ -6,55 +6,80 @@
 /*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/16 03:12:36 by jdenis            #+#    #+#             */
-/*   Updated: 2023/10/03 18:37:39 by jdenis           ###   ########.fr       */
+/*   Updated: 2024/01/15 18:30:24 by jdenis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
+#include <stdbool.h>
 
-int	help_n_option(char **str)
+bool	is_white_space(char c)
 {
-	int	index;
+	return (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f'
+		|| c == '\r');
+}
+
+size_t	skip_first_white_space(char *str)
+{
+	size_t	index;
+
+	index = 4;
+	while (str[index] != '\0' && is_white_space(str[index]))
+		index++;
+	return (index);
+}
+
+void	comfirm_flag(bool *is_flag, char *str, size_t *index)
+{
+	*is_flag = true;
+	if (str[*index] != '\0')
+		index++;
+}
+
+int	skip_n(char **strs, bool *is_flag)
+{
+	size_t	index;
+	size_t	index2;
 
 	index = 1;
-	if (str[0][0] == '-' && str[0][1] == 'n')
+	while (strs[index])
 	{
-		while (str[0][index])
+		if (strs[index][0] == '-')
 		{
-			if (str[0][index] == 'n')
+			index2 = 1;
+			while (strs[index][index2] == 'n' && strs[index][index2] != '\0')
+				index2++;
+			if (strs[index][index2] == '\0')
+			{
 				index++;
+				*is_flag = true;
+			}
 			else
-				return (0);
+				return (index);
 		}
-		return (1);
+		else
+			return (index);
 	}
-	else
-		return (0);
+	return (index);
 }
 
-void	ft_echo(char **str)
+int	ft_echo(char **command)
 {
-	int	index;
-	int	is_flag;
+	int		index;
+	bool	is_flag;
 
-	is_flag = help_n_option(str);
-	index = is_flag;
-	while (str[index])
+	is_flag = false;
+	index = skip_n(command, &is_flag);
+	while (command[index])
 	{
-		printf("%s", str[index]);
-		if (str[index + 1])
+		printf("%s", command[index]);
+		if (command[index + 1])
 			printf(" ");
-		else
-			break ;
 		index++;
 	}
-	if (is_flag == 0)
+	if (!is_flag)
+	{
 		printf("\n");
+	}
+	return (EXIT_SUCCESS);
 }
-
-// int	main(void)
-// {
-// 	char *input[4] = {"-nnnnnnnnnnn", "hello", "wolrd", 0};
-// 	ft_echo(input);
-// 	return (0);
-// }

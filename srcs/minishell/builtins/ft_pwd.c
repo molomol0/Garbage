@@ -6,25 +6,21 @@
 /*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/16 03:12:31 by jdenis            #+#    #+#             */
-/*   Updated: 2023/10/03 18:37:44 by jdenis           ###   ########.fr       */
+/*   Updated: 2023/12/13 16:00:18 by jdenis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
-int	ft_pwd(char **str)
+int	ft_pwd(t_envs *envs)
 {
 	char	*path;
 
-	if (str != NULL)
-	{
-		printf("pwd: too many arguments");
-		return (-1);
-	}
-	path = getcwd(NULL, 0);
+	path = ft_getenv("PWD", envs);
 	if (path == NULL)
-		return (-1);
+		return (EXIT_FAILURE);
 	printf("%s", path);
 	free(path);
-	return (1);
+	printf("\n");
+	return (EXIT_SUCCESS);
 }

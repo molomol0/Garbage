@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   inits.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jdenis <jdenis@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 05:19:59 by dlacuey           #+#    #+#             */
-/*   Updated: 2023/11/24 04:26:12 by marvin           ###   ########.fr       */
+/*   Updated: 2024/01/15 18:33:00 by jdenis           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser.h"
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 t_node	*init_node(void)
 {
@@ -29,6 +29,8 @@ t_node	*init_node(void)
 	node->right = NULL;
 	node->parent = NULL;
 	node->number_of_pipes = 0;
+	node->number_of_here_doc = 0;
+	node->number_of_here_doc_index = 0;
 	return (node);
 }
 

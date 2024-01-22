@@ -1,33 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_get_command.c                                   :+:      :+:    :+:   */
+/*   ft_strtok_utils_3.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dlacuey <dlacuey@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/08 11:52:08 by dlacuey           #+#    #+#             */
-/*   Updated: 2023/10/25 08:47:51 by dlacuey          ###   ########.fr       */
+/*   Created: 2024/01/16 08:12:14 by dlacuey           #+#    #+#             */
+/*   Updated: 2024/01/16 08:16:39 by dlacuey          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
+#include "libft.h"
+#include <stdio.h>
 
-char	*get_command(char *command, char **paths)
+void	init_count(t_count *count)
 {
-	char	*tmp;
-	char	*command_full_path;
+	count->single_quote = false;
+	count->double_quote = false;
+	count->count = 0;
+	count->index = 0;
+	count->tokens = 0;
+}
 
-	if (access(command, X_OK) == 0)
-		return (command);
-	while (*paths)
-	{
-		tmp = ft_strjoin(*paths, "/");
-		command_full_path = ft_strjoin(tmp, command);
-		free(tmp);
-		if (access(command_full_path, X_OK) == 0)
-			return (command_full_path);
-		free(command_full_path);
-		paths++;
-	}
-	return (NULL);
+void	update_quotes_to_count_tokens(bool *single_quote, bool *double_quote,
+		char current_char)
+{
+	if (current_char == '\'')
+		*single_quote = !*single_quote;
+	if (current_char == '\"')
+		*double_quote = !*double_quote;
 }
